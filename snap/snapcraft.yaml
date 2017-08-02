@@ -1,0 +1,90 @@
+name: aletheia # you probably want to 'snapcraft register <name>'
+version: '0.3' # just for humans, typically '1.2+git' or '1.3.2'
+summary: Aletheia decentralized scientific publishing # 79 char long summary
+description: |
+  Aletheia is...
+
+grade: devel # must be 'stable' to release into candidate/stable channels
+confinement: devmode # use 'strict' once you have the right plugs and slots
+
+apps:
+  aletheia:
+    command: npm start
+    plugs: [home, network, network-bind, opengl]
+    #desktop: 
+  ipfs:
+    command: ipfs daemon
+    daemon: simple
+    plugs: [home, network, network-bind]
+  ethereum:
+    command: geth --rpc --rpccorsdomain "*"
+    daemon: simple
+    plugs: [home, network, network-bind]
+
+parts:
+  aletheia:
+    source: https://github.com/step21/aletheia-app.git 
+    plugin: nodejs
+    node-engine: "6.9.5"
+    node-packages:
+      - truffle
+      - electron
+      - truffle-expect
+      - truffle-contract
+      - truffle-config
+      - config
+      - ipfs-api
+      - jquery
+      - q
+      - web3
+    #prepare: |
+    #  mkdir $SNAPCRAFT_PART_PREPARE/bin
+    #  cp aletheia.sh $SNAPCRAFT_PART_PREPARE/bin
+    #install: |
+    #  mv aletheia.sh $SNAPCRAFT_PART_INSTALL/bin/aletheia.sh
+    #stage:
+    #  - aletheia.sh
+    #prime: 
+    #  - aletheia.sh
+    organize:
+      README.md: README-node.md
+    #files:
+    #  aletheia.sh: bin/aletheia.sh
+    #this could in the future be replaced by using parts from wiki
+    after: [ethereum, ipfs]
+  #environment:
+  #  plugin: dump
+  #  source: snap
+  #  organize:
+  #    aletheia.sh: bin/aletheia.sh
+  #  prime:
+  #    - bin/aletheia.sh
+  #  stage:
+  #    - bin/aletheia.sh
+  ipfs:
+    source: https://github.com/ipfs/go-ipfs.git
+    source-tag: master
+    plugin: nil
+    build-packages: [make, wget]
+    prepare: |
+      mkdir -p ../go/src/github.com/ipfs/go-ipfs
+      cp -R . ../go/src/github.com/ipfs/go-ipfs
+    build: |
+      env GOPATH=$(pwd)/../go make -C ../go/src/github.com/ipfs/go-ipfs install
+    install: |
+      mkdir $SNAPCRAFT_PART_INSTALL/bin
+      mv ../go/bin/ipfs $SNAPCRAFT_PART_INSTALL/bin/
+    after: [go]
+  ethereum:
+    plugin: make
+    source-tag: master
+    source: https://github.com/ethereum/go-ethereum.git
+    build: make -j4
+    install: |
+      mkdir $SNAPCRAFT_PART_INSTALL/bin
+      cp -R * $SNAPCRAFT_PART_INSTALL
+    organize:
+      README.md: README-ethereum.md
+    after: [go]
+  go:
+    source-tag: go1.8.3
