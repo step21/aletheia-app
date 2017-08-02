@@ -19,7 +19,7 @@
     "Publishing",
     "Ipfs"
   ],
-  "author": "aletheia-foundation",
+  "author": "aletheia-foundation <mail@foundation.io>",
   "license": "LGPL-3.0",
   "devDependencies": {
     "bs58": "4.0.1",
@@ -43,5 +43,19 @@
     "truffle-contract": "2.0.1",
     "truffle-expect": "0.0.3",
     "web3": "0.18.4"
-  }
+  },
+  "build": {
+        "appId": "com.electron.aletheia",
+        "app-category-type": "public.app-category.science",
+        "dmg": {
+          
+        },
+        "win": {
+            "iconUrl": "http://eatodo.s3.amazonaws.com/icon.ico"
+        },
+        "linux": {
+
+        }
+    }
 }
+
